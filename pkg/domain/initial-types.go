@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// most important - it's immutability is what drives the application
 type APIServer struct {
 	ListenAddr string
 	Store      storage.PGXStorage

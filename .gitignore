@@ -1,0 +1,2 @@
+# Ignore the service account key file
+pkg/adapter/gdrive/service-account-key.json

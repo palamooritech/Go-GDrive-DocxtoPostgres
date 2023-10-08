@@ -9,6 +9,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// the makeHTTPHandleFunc is like a wrapper function which takes http handlers
+// with the return type of error. This helps in achieving uniform error
+// addressal throughout the application
 func makeHTTPHandleFunc(f APIFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
@@ -17,6 +20,9 @@ func makeHTTPHandleFunc(f APIFunc) http.HandlerFunc {
 	}
 }
 
+// returns a APIServer immutable instance by using pointer reference, which
+// helps in maintaining a reference to the PGSXStore throughout the
+// application
 func NewAPIServer(listenAddr string, store storage.PGXStorage) *APIServer {
 	return &APIServer{
 		ListenAddr: listenAddr,
@@ -25,8 +31,11 @@ func NewAPIServer(listenAddr string, store storage.PGXStorage) *APIServer {
 }
 
 func (s *APIServer) Run() {
+	//router initialization and the routes initialization
 	router := mux.NewRouter()
 	router.HandleFunc("/api", makeHTTPHandleFunc(s.HandleRequests))
+	router.HandleFunc("/api/edit", makeHTTPHandleFunc(s.HandleEditRequest))
+	router.HandleFunc("/api/accessall", makeHTTPHandleFunc(s.HandleAccessAllRequests))
 
 	log.Println("JSON API server running on", s.ListenAddr)
 	http.ListenAndServe(s.ListenAddr, router)

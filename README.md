@@ -55,6 +55,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Contributions are welcome! Whether you're fixing a bug, improving the documentation, or adding new features, your contributions help make GoDocxToPostgres better for everyone. See our Contribution Guidelines for more details.
 
+**Engineered by the Team at Palamoor Tech**
+
 
       *
      / \

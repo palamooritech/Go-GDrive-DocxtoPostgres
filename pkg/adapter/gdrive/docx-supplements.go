@@ -49,6 +49,8 @@ func Parsefile(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	//get's the file size and other metadata
 	fileInfo, err := readFile.Stat()
 	if err != nil {
 		return "", err

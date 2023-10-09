@@ -46,10 +46,41 @@ func (s *APIServer) HandleEditRequest(w http.ResponseWriter, r *http.Request) er
 }
 
 // this is used to fork out all the data from the db.
+
+/*
+	 the data format
+		id	"1W0oB8ml_PhQzh1idpG2GoG_wyZ3HLkpu"
+		lid	"DCL Court PoW Case Filings"
+		file_name	"509efc74-db46-41ac-96e8-5c1c23938575"
+		created_time	"2023-10-04T19:41:55.14+05:30"
+		modified_time	"2023-10-04T19:15:03.779+05:30"
+		touched	true
+		case_number	"CATU143"
+		letter_type	"hello"
+		summary	"Yellow"
+		delivery_mode	"yoloadsadasd2"
+		delivery_id	"telloaadskalsadkladsklds2"
+		file_url	"https://drive.google.com…Z3HLkpu/view?usp=sharing"
+*/
 func (s *APIServer) HandleAccessAllRequests(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		list := s.Store.AccessAll()
-		return helper.WriteJSON(w, http.StatusOK, list)
+		return helper.WriteJSON(w, http.StatusOK, map[string]any{"payload": list})
+	}
+	return helper.WriteJSON(w, http.StatusBadRequest, map[string]string{"payload": "You can't GET a POST with this request :P"})
+}
+
+func (s *APIServer) HandleSearchAllRequests(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		searchData := new(typos.SearchData)
+		if err := json.NewDecoder(r.Body).Decode(searchData); err != nil {
+			return err
+		}
+		list := s.Store.SearchAll(searchData.Keyword)
+		if len(list) == 0 {
+			return helper.WriteJSON(w, http.StatusOK, map[string]any{"payload": "No Data"})
+		}
+		return helper.WriteJSON(w, http.StatusOK, map[string]any{"payload": list})
 	}
 	return helper.WriteJSON(w, http.StatusBadRequest, map[string]string{"payload": "You can't GET a POST with this request :P"})
 }

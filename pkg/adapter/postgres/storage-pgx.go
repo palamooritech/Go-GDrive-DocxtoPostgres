@@ -13,6 +13,7 @@ type PGXStore struct {
 	Pool *pgx.ConnPool
 }
 
+// docker container port ip for the PgAdmin 4 Server- http://localhost:82/
 // defining this interface and the functions of it, help in accessing
 // these functions from outside of this package
 type PGXStorage interface {
@@ -23,6 +24,7 @@ type PGXStorage interface {
 	UpdateFileRequest(typos.EGFile) error
 	UpdateSummary([]typos.SummaryFile) error
 	AccessAll() []typos.GFile
+	SearchAll(string) []typos.GFile
 }
 
 // establishes the PGX variable, establishes the store and returns PGXStore.
@@ -339,5 +341,61 @@ func (p *PGXStore) AccessAll() []typos.GFile {
 
 		magnumRows = append(magnumRows, row)
 	}
+	return magnumRows
+}
+
+func (p *PGXStore) SearchAll(keyword string) []typos.GFile {
+
+	tx, err := p.Pool.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+
+	query :=
+		`
+	SELECT *
+	FROM magnum
+	WHERE
+		id ILIKE $1 OR
+		file_name ILIKE $1 OR
+		letter_id ILIKE $1 OR
+		case_number ILIKE $1 OR
+		letter_type ILIKE $1 OR
+		summary ILIKE $1 OR
+		delivery_mode ILIKE $1 OR
+		delivery_id ILIKE $1 OR
+		file_url ILIKE $1;
+`
+	rows, err := tx.Query(query, "%"+keyword+"%")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	magnumRows := []typos.GFile{}
+
+	for rows.Next() {
+		row := typos.GFile{}
+		err := rows.Scan(
+			&row.ID,
+			&row.LID,
+			&row.FileName,
+			&row.CreatedTime,
+			&row.ModifiedTime,
+			&row.Touched,
+			&row.CaseNumber,
+			&row.LetterType,
+			&row.Summary,
+			&row.DeliveryMode,
+			&row.DeliveryID,
+			&row.FURL)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		magnumRows = append(magnumRows, row)
+	}
+
 	return magnumRows
 }

@@ -68,10 +68,13 @@ func Parsefile(filename string) (string, error) {
 		for _, child := range para.Children() {
 
 			if child.Run != nil {
+				//concatenates each character
 				childPara = childPara + "" + child.Run.Text.Text
 			}
 
 		}
+		//checks if the "Sub:" is present and take the content after it.
+		// breaks the loop if found.
 		content, flag := SubCheck(childPara)
 		if flag {
 			// fmt.Println("the Summary:", content)
@@ -79,6 +82,7 @@ func Parsefile(filename string) (string, error) {
 		}
 		if len(holdingVal) < len(childPara) {
 			holdingVal = childPara
+			//breaks if the holdingVal 's length is greater than 400.
 			if len(holdingVal) > 400 {
 				break
 			}

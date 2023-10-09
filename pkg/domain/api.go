@@ -36,6 +36,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/api", makeHTTPHandleFunc(s.HandleRequests))
 	router.HandleFunc("/api/edit", makeHTTPHandleFunc(s.HandleEditRequest))
 	router.HandleFunc("/api/accessall", makeHTTPHandleFunc(s.HandleAccessAllRequests))
+	router.HandleFunc("/api/searchall", makeHTTPHandleFunc(s.HandleSearchAllRequests))
 
 	log.Println("JSON API server running on", s.ListenAddr)
 	http.ListenAndServe(s.ListenAddr, router)

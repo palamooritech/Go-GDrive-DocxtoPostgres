@@ -34,6 +34,10 @@ type SummaryFile struct {
 	Summary string `json:"summary:"`
 }
 
+type SearchData struct {
+	Keyword string `json:"keyword"`
+}
+
 func NewFile(
 	id string, fileName string, createdTime time.Time,
 	modifiedTime time.Time, letterID string, letterType string,

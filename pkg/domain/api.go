@@ -30,13 +30,30 @@ func NewAPIServer(listenAddr string, store storage.PGXStorage) *APIServer {
 	}
 }
 
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins as needed
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (s *APIServer) Run() {
 	//router initialization and the routes initialization
 	router := mux.NewRouter()
+	router.Use(enableCORS)
 	router.HandleFunc("/api", makeHTTPHandleFunc(s.HandleRequests))
 	router.HandleFunc("/api/edit", makeHTTPHandleFunc(s.HandleEditRequest))
 	router.HandleFunc("/api/accessall", makeHTTPHandleFunc(s.HandleAccessAllRequests))
 	router.HandleFunc("/api/searchall", makeHTTPHandleFunc(s.HandleSearchAllRequests))
+	router.HandleFunc("/api/uploadresponse", makeHTTPHandleFunc(s.HandleResponseUpload))
 
 	log.Println("JSON API server running on", s.ListenAddr)
 	http.ListenAndServe(s.ListenAddr, router)

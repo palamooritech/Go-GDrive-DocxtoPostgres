@@ -246,7 +246,9 @@ func (p *PGXStore) UpdateFileRequest(file typos.EGFile) error {
 			summary = COALESCE($4, summary),
 			delivery_mode = COALESCE($5, delivery_mode),
 			delivery_id = COALESCE($6, delivery_id),
-			touched = $7
+			touched = $7,
+			letter_id = COALESCE($8, letter_id),
+			file_name = COALESCE($9, file_name)
 		WHERE
 			id = $1
 	`
@@ -258,7 +260,9 @@ func (p *PGXStore) UpdateFileRequest(file typos.EGFile) error {
 		sql.NullString{String: file.Summary, Valid: file.Summary != ""},
 		sql.NullString{String: file.DeliveryMode, Valid: file.DeliveryMode != ""},
 		sql.NullString{String: file.DeliveryID, Valid: file.DeliveryID != ""},
-		true)
+		true, // This should be a parameter value, not a sql.NullString
+		sql.NullString{String: file.LID, Valid: file.LID != ""},
+		sql.NullString{String: file.FileName, Valid: file.FileName != ""})
 
 	if err != nil {
 		return err
@@ -324,8 +328,8 @@ func (p *PGXStore) AccessAll() []typos.GFile {
 		row := typos.GFile{}
 		err := rows.Scan(
 			&row.ID,
-			&row.LID,
 			&row.FileName,
+			&row.LID,
 			&row.CreatedTime,
 			&row.ModifiedTime,
 			&row.Touched,
@@ -398,4 +402,13 @@ func (p *PGXStore) SearchAll(keyword string) []typos.GFile {
 	}
 
 	return magnumRows
+}
+
+func parseTimeT(t time.Time) time.Time {
+	year, month, day := t.Date()
+
+	// Create a new time.Time value with only the date part
+	newTime := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	// fmt.Println(newTime)
+	return newTime
 }

@@ -25,7 +25,7 @@ func main() {
 	//creating an instance of NewAPIServer to store the listening address
 	// and the PGXStore instance for accessing them immutablely throughout
 	// the application.
-	server := domain.NewAPIServer(":3001", store)
+	server := domain.NewAPIServer(":3002", store)
 	go drive.DriveAdapter(server)
 
 	// for making the drive adapter run every one hour

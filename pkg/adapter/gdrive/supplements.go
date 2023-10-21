@@ -66,13 +66,13 @@ func LetterTypeDeduce(name string) string {
 	input := strings.ToLower(name)
 
 	// Words to search for
-	wordsToSearch := []string{"rti", "followup", "resolution", "affidavit", "legal notice"}
+	wordsToSearch := []string{"rti", "followup", "resolution", "affidavit", "legal notice", "follow up"}
 
 	result := ""
 	// Iterate over the words and search for each one
 	for _, word := range wordsToSearch {
 		if strings.Contains(input, word) {
-			if result == "followup" {
+			if result == "followup" || result == "follow up" {
 				// "followup" takes precedence, so we don't change the result
 				continue
 			}

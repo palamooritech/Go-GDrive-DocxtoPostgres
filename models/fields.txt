@@ -1,0 +1,12 @@
+id
+lid
+file_name
+created_time
+modified_time
+touched
+case_number
+letter_type
+summary
+delivery_mode
+delivery_id
+file_url

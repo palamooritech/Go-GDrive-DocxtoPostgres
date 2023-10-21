@@ -21,6 +21,8 @@ type GFile struct {
 
 type EGFile struct {
 	ID           string `json:"id"`
+	LID          string `json:"lid"`
+	FileName     string `json:"file_name"`
 	Touched      bool   `json:"touched"`
 	CaseNumber   string `json:"caseNumber"`
 	LetterType   string `json:"letterType"`

@@ -4,7 +4,10 @@ import (
 	"31arthur/drive-editor/helper"
 	typos "31arthur/drive-editor/models"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 )
 
 // basic random function to check
@@ -30,7 +33,9 @@ func (s *APIServer) HandleEditRequest(w http.ResponseWriter, r *http.Request) er
 
 	if r.Method == "POST" {
 		eGFile := new(typos.EGFile)
+		fmt.Println("Hello, this has been called")
 		if err := json.NewDecoder(r.Body).Decode(eGFile); err != nil {
+			fmt.Println(err)
 			return err
 		}
 		// fmt.Println("Gfile", eGFile)
@@ -83,4 +88,41 @@ func (s *APIServer) HandleSearchAllRequests(w http.ResponseWriter, r *http.Reque
 		return helper.WriteJSON(w, http.StatusOK, map[string]any{"payload": list})
 	}
 	return helper.WriteJSON(w, http.StatusBadRequest, map[string]string{"payload": "You can't GET a POST with this request :P"})
+}
+
+func (s *APIServer) HandleResponseUpload(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		r.ParseMultipartForm(10 << 20) // Set a reasonable maximum file size
+		file, handler, err := r.FormFile("file")
+		if err != nil {
+			fmt.Println("Error retrieving the file:", err)
+			return err
+		}
+		defer file.Close()
+
+		f, err := os.OpenFile(handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			fmt.Println("Error creating the file:", err)
+			return err
+		}
+		defer f.Close()
+
+		// Copy the uploaded file to the new file on the server
+		io.Copy(f, file)
+
+		jsonResponse := map[string]interface{}{"payload": "success"}
+
+		// Set the response content type
+		w.Header().Set("Content-Type", "application/json")
+
+		// Write the JSON response
+		return helper.WriteJSON(w, http.StatusOK, jsonResponse)
+	}
+
+	// For other HTTP methods (e.g., GET)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+
+	jsonResponse := map[string]interface{}{"payload": "You can't GET a POST with this request :P"}
+	return helper.WriteJSON(w, http.StatusBadRequest, jsonResponse)
 }
